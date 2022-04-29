@@ -11,10 +11,11 @@ class PhasingExtension extends BaseExtension {
     async load() {
         super.load();
         await Promise.all([
-            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),//
-            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')//
+            // this.loadScript('https://cdn.jsdelivr.net/npm/sweetalert2@11.js', 'sWEETaLERT2'),
+            this.loadScript('https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.js', 'FrappeGantt'),
+            this.loadStylesheet('https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css')
         ]);
-        console.log('DataGridExtension loaded.');//
+        console.log('PhasingExtension loaded.');//
         return true;
     }
 
@@ -29,13 +30,13 @@ class PhasingExtension extends BaseExtension {
             this._panel.uninitialize();
             this._panel = null;
         }
-        console.log('DataGridExtension unloaded.');//
+        console.log('PhasingExtension unloaded.');//
         return true;
     }
 
     onToolbarCreated() {
-        this._panel = new PhasingPanel(this, 'dashboard-datagrid-panel', 'Data Grid', { x: 10, y: 10 });//
-        this._button = this.createToolbarButton('dashboard-datagrid-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Data Grid');//
+        this._panel = new PhasingPanel(this, 'dashboard-phases-panel', 'Phases', { x: 10, y: 10 });//
+        this._button = this.createToolbarButton('dashboard-phases-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Gantt Chart');//
         this._button.onClick = () => {
             this._panel.setVisible(!this._panel.isVisible());
             this._button.setState(this._panel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);

@@ -1,21 +1,16 @@
-const PHASING_CONFIG = {
-  // requiredProps: ['name', 'Volume', 'Level'], // Which properties should be requested for each object
-  // columns: [ // Definition of individual grid columns (see http://tabulator.info for more details)
-  //     { title: 'ID', field: 'dbid' },
-  //     { title: 'Name', field: 'name', width: 150 },
-  //     { title: 'Volume', field: 'volume', hozAlign: 'left', formatter: 'progress' },
-  //     { title: 'Level', field: 'level' }
-  // ],
-  // groupBy: 'level', // Optional column to group by
-  // createRow: (dbid, name, props) => { // Function generating grid rows based on recieved object properties
-  //     const volume = props.find(p => p.displayName === 'Volume')?.displayValue;
-  //     const level = props.find(p => p.displayName === 'Level' && p.displayCategory === 'Constraints')?.displayValue;
-  //     return { dbid, name, volume, level };
-  // },
-  // onRowClick: (row, viewer) => {
-  //     viewer.isolate([row.dbid]);
-  //     viewer.fitToView([row.dbid]);
-  // }
+var PHASING_CONFIG = {
+  tasks: [],
+  //here we have the equivalence between tasks and dbids from the model
+  objects: {},
+  propFilter: 'externalId',
+  requiredProps: {
+    id: 'ID',
+    taskName: 'NAME',
+    startDate: 'START',
+    endDate: 'END',
+    taskProgress: 'PROGRESS'
+  },
+  mapTaksNProps: {}
 };
 
 export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
@@ -30,29 +25,101 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
   }
 
   initialize() {
-      this.title = this.createTitleBar(this.titleLabel || this.container.id);
-      this.initializeMoveHandlers(this.title);
-      this.container.appendChild(this.title);
-      this.content = document.createElement('div');
-      this.content.style.height = '350px';
-      this.content.style.backgroundColor = 'white';
-      this.content.innerHTML = `<div class="datagrid-container" style="position: relative; height: 350px;"></div>`;
-      this.container.appendChild(this.content);
-      // See http://tabulator.info
-      this.table = new Tabulator('.datagrid-container', {
-          height: '100%',
-          layout: 'fitColumns',
-          columns: DATAGRID_CONFIG.columns,
-          groupBy: DATAGRID_CONFIG.groupBy,
-          rowClick: (e, row) => DATAGRID_CONFIG.onRowClick(row.getData(), this.extension.viewer)
-      });
+    this.title = this.createTitleBar(this.titleLabel || this.container.id);
+    this.initializeMoveHandlers(this.title);
+    this.container.appendChild(this.title);
+    this.content = document.createElement('div');
+    this.content.style.height = '350px';
+    this.content.style.backgroundColor = 'white';
+    this.content.innerHTML = `<svg class="phasing-container" style="position: relative; height: 350px;"></svg>`;
+    this.container.appendChild(this.content);
+    this.updateTasks();
+    // See https://frappe.io/gantt
+    this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
+      on_click: function (task) {
+        viewer.isolate(PHASING_CONFIG.objects[task.id]);
+      }
+    });
   }
 
   update(model, dbids) {
-      model.getBulkProperties(dbids, { propFilter: DATAGRID_CONFIG.requiredProps }, (results) => {
-          this.table.replaceData(results.map((result) => DATAGRID_CONFIG.createRow(result.dbId, result.name, result.properties)));
-      }, (err) => {
-          console.error(err);
-      });
+    if(PHASING_CONFIG.tasks.length === 0){
+      this.inputCSV();
+    }
+    model.getBulkProperties(dbids, { propFilter: PHASING_CONFIG.propFilter }, (results) => {
+      results.map((result => {
+        this.updateObjects(result);
+      }))
+    }, (err) => {
+      console.error(err);
+    });
+  }
+
+  updateObjects(result){
+    let currentTaskId = PHASING_CONFIG.mapTaksNProps[result[PHASING_CONFIG.propFilter]]
+    if(!!currentTaskId) {
+      if(PHASING_CONFIG.objects[currentTaskId])
+        PHASING_CONFIG.objects[currentTaskId] = [];
+      
+      PHASING_CONFIG.objects[currentTaskId].push(result.dbid);
+    }
+  }
+
+  updateTasks(){
+    if(PHASING_CONFIG.tasks.length === 0){
+      this.inputCSV();
+    }
+  }
+
+  async inputCSV(){
+    const { value: file } = await Swal.fire({
+      title: 'Select csv file',
+      input: 'file',
+      inputAttributes: {
+        'accept': '.csv',
+        'aria-label': 'Upload your csv for configuration'
+      },
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Import Classification'
+    })
+    if(file){
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        let lines = e.target.result.split('\n');
+        if(this.validateCSV(lines[0])){
+          let header = lines[0];
+          lines.shift();
+          let newTasks = lines.map(line => this.lineToObject(line, header));
+          PHASING_CONFIG.tasks = newTasks;
+        }
+      }
+      reader.readAsBinaryString(file);
+    }
+  }
+
+  lineToObject(line, inputHeaders){
+    let parameters = line.split(',');
+    let newObject = {};
+    // Object.keys(newObject) = PHASING_CONFIG.requiredProps;
+    Object.values(PHASING_CONFIG.requiredProps).forEach(requiredProp => {
+      newObject.id = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.id)];
+      newObject.name = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.taskName)];
+      newObject.start = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.startDate)];
+      newObject.end = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.endDate)];
+      newObject.progress = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.taskProgress)];
+    });
+    this.addPropToMask(parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.propFilter)], newObject.id);
+    return newObject;
+  }
+
+  addPropToMask(filterValue, taskId){
+    PHASING_CONFIG.mapTaksNProps[filterValue] = taskId;
+  }
+
+  validateCSV(line){
+    let parameters = line.split(',');
+    return PHASING_CONFIG.requiredProps.every((currentHeader) => !!parameters.find(currentHeader));
   }
 }

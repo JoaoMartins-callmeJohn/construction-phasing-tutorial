@@ -13,6 +13,11 @@
 This sample leverages the new Dashboard tutorial to create a phasing sample.
 It's based in a configuration defined by a csv in order to map all the available elements in viewer, then categorize them into different packages.
 It uses frappe/gantt as dependency.
+We also need to handle inputs and messages with client, so we're going with sweetalert2 for that.
+
+Here you can check the documentation of the library selected: https://frappe.io/gantt
+
+You can use cdndelivr or yarn (in case you go with Node)
 
 First step: we need to add a button to upload csv (and with that, select which property will be mapped).
 

@@ -41,18 +41,18 @@ export class BaseExtension extends Autodesk.Viewing.Extension {
   }
 
   async findPropertyNames(model) {
-      const dbids = await this.findLeafNodes(model);
-      return new Promise(function (resolve, reject) {
-          model.getBulkProperties(dbids, {}, function (results) {
-              let propNames = new Set();
-              for (const result of results) {
-                  for (const prop of result.properties) {
-                      propNames.add(prop.displayName);
-                  }
-              }
-              resolve(Array.from(propNames.values()));
-          }, reject);
-      });
+    const dbids = await this.findLeafNodes(model);
+    return new Promise(function (resolve, reject) {
+        model.getBulkProperties(dbids, {}, function (results) {
+            let propNames = new Set();
+            for (const result of results) {
+                for (const prop of result.properties) {
+                    propNames.add(prop.displayName);
+                }
+            }
+            resolve(Array.from(propNames.values()));
+        }, reject);
+    });
   }
 
   createToolbarButton(buttonId, buttonIconUrl, buttonTooltip) {
