@@ -2,7 +2,7 @@ var PHASING_CONFIG = {
   tasks: [],
   //here we have the equivalence between tasks and dbids from the model
   objects: {},
-  propFilter: 'externalId',
+  propFilter: 'Type Name',
   requiredProps: {
     id: 'ID',
     taskName: 'NAME',
@@ -21,7 +21,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.container.style.top = (options.y || 0) + 'px';
       this.container.style.width = (options.width || 500) + 'px';
       this.container.style.height = (options.height || 400) + 'px';
-      this.container.style.resize = 'none';
+      // this.container.style.resize = 'none';
   }
 
   initialize() {
@@ -35,11 +35,13 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.appendChild(this.content);
     this.updateTasks();
     // See https://frappe.io/gantt
-    this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
-      on_click: function (task) {
-        viewer.isolate(PHASING_CONFIG.objects[task.id]);
-      }
-    });
+    // if(PHASING_CONFIG.tasks.length > 0){
+    //   this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
+    //     on_click: function (task) {
+    //       viewer.isolate(PHASING_CONFIG.objects[task.id]);
+    //     }
+    //   });
+    // }
   }
 
   update(model, dbids) {
@@ -53,15 +55,29 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     }, (err) => {
       console.error(err);
     });
+    if(PHASING_CONFIG.tasks.length > 0){
+      let _viewer = this.extension.viewer;
+      this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
+        on_click: this.barCLickEvent.bind(this)
+        // on_click: function (task, _viewer) {
+        //   _viewer.isolate(PHASING_CONFIG.objects[task.id]);
+        // }
+      });
+    }
+  }
+
+  barCLickEvent(task){
+    this.extension.viewer.isolate(PHASING_CONFIG.objects[task.id]);
   }
 
   updateObjects(result){
-    let currentTaskId = PHASING_CONFIG.mapTaksNProps[result[PHASING_CONFIG.propFilter]]
+    // let currentTaskId = PHASING_CONFIG.mapTaksNProps[result[PHASING_CONFIG.propFilter]];
+    let currentTaskId = PHASING_CONFIG.mapTaksNProps[result.properties[0].displayValue];
     if(!!currentTaskId) {
-      if(PHASING_CONFIG.objects[currentTaskId])
+      if(!PHASING_CONFIG.objects[currentTaskId])
         PHASING_CONFIG.objects[currentTaskId] = [];
       
-      PHASING_CONFIG.objects[currentTaskId].push(result.dbid);
+      PHASING_CONFIG.objects[currentTaskId].push(result.dbId);
     }
   }
 
@@ -82,7 +98,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Import Classification'
+      confirmButtonText: 'Import CSV'
     })
     if(file){
       const reader = new FileReader();
@@ -99,8 +115,9 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     }
   }
 
-  lineToObject(line, inputHeaders){
+  lineToObject(line, inputHeadersLine){
     let parameters = line.split(',');
+    let inputHeaders = inputHeadersLine.split(',');
     let newObject = {};
     // Object.keys(newObject) = PHASING_CONFIG.requiredProps;
     Object.values(PHASING_CONFIG.requiredProps).forEach(requiredProp => {
@@ -120,6 +137,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
   validateCSV(line){
     let parameters = line.split(',');
-    return PHASING_CONFIG.requiredProps.every((currentHeader) => !!parameters.find(currentHeader));
+    return Object.values(PHASING_CONFIG.requiredProps).every((currentProp) => !!parameters.find(p => p===currentProp));
   }
 }
