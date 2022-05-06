@@ -21,27 +21,40 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.container.style.top = (options.y || 0) + 'px';
       this.container.style.width = (options.width || 500) + 'px';
       this.container.style.height = (options.height || 400) + 'px';
-      // this.container.style.resize = 'none';
+      this.container.style.resize = 'both';
   }
 
   initialize() {
     this.title = this.createTitleBar(this.titleLabel || this.container.id);
     this.initializeMoveHandlers(this.title);
     this.container.appendChild(this.title);
+
+    //Here we add the button to update the csv
+    let button = document.createElement("button");
+    button.innerHTML = 'UPDATE CSV';
+    button.style.width = '100px';
+    button.style.height = '30px';
+    button.style.backgroundColor = 'white';
+    button.style.borderRadius = '8px';
+    button.style.borderStyle = 'solid';
+
+    // button.classList.add('docking-panel-tertiary-button');
+    button.onclick = this.inputCSV;
+    this.container.appendChild(button);
+
+    //Here we add the svg for the GANTT chart
     this.content = document.createElement('div');
     this.content.style.height = '350px';
     this.content.style.backgroundColor = 'white';
-    this.content.innerHTML = `<svg class="phasing-container" style="position: relative; height: 350px;"></svg>`;
+    this.content.innerHTML = `<svg class="phasing-container"></svg>`;
     this.container.appendChild(this.content);
+
+    let dropdown = document.createElement("button");
+
+    dropdown.onchange = this.inputCSV;
+    this.container.appendChild(button);
+
     this.updateTasks();
-    // See https://frappe.io/gantt
-    // if(PHASING_CONFIG.tasks.length > 0){
-    //   this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
-    //     on_click: function (task) {
-    //       viewer.isolate(PHASING_CONFIG.objects[task.id]);
-    //     }
-    //   });
-    // }
   }
 
   update(model, dbids) {
@@ -56,12 +69,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       console.error(err);
     });
     if(PHASING_CONFIG.tasks.length > 0){
-      let _viewer = this.extension.viewer;
       this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
         on_click: this.barCLickEvent.bind(this)
-        // on_click: function (task, _viewer) {
-        //   _viewer.isolate(PHASING_CONFIG.objects[task.id]);
-        // }
       });
     }
   }
