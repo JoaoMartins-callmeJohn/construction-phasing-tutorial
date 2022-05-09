@@ -50,7 +50,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     //We could also take advantage of one of the existing classes for Viewers buttons
     // button.classList.add('docking-panel-tertiary-button');
-    this.button.onclick = this.inputCSV;
+    this.button.onclick = this.inputCSV.bind(this);
     this.container.appendChild(this.button);
 
     //Here we create a dropdown to control vision of the GANTT
@@ -115,7 +115,9 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     });
     if (PHASING_CONFIG.tasks.length > 0) {
       this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
-        on_click: this.barCLickEvent.bind(this)
+        on_click: this.barCLickEvent.bind(this),
+        on_progress_change: this.handleElementsColor.bind(this),
+        on_date_change: this.handleElementsColor.bind(this)
       });
     }
   }
@@ -141,33 +143,53 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     }
   }
 
-  handleElementsColor(event) {
-    console.log(event);
-    if (event.targer.checked) {
-      let taskStatusArray = this.gantt.tasks.map(this.checkTaskStatus);
+  handleElementsColor() {
+    const overrideCheckbox = document.getElementById('colormodel');
+    if (overrideCheckbox.checked) {
+      let tasksNStatusArray = this.gantt.tasks.map(this.checkTaskStatus);
+      let mappeddbIds = [];
       for (let index = 0; index < this.gantt.tasks.length; index++) {
         const currentTaskId = this.gantt.tasks[index].id;
         const currentdbIds = PHASING_CONFIG.objects[currentTaskId];
-
-
+        const colorVector4 = this.fromRGB2Color(PHASING_CONFIG.statusColors[tasksNStatusArray[index]]);
+        currentdbIds.forEach(dbId => {
+          if (colorVector4) {
+            this.extension.viewer.setThemingColor(dbId, colorVector4)
+          }
+          else {
+            this.extension.viewer.hide(dbId);
+          }
+        });
+        mappeddbIds.push(...currentdbIds);
       }
-      // PHASING_CONFIG.objects[task.id]
+      this.extension.viewer.isolate(mappeddbIds);
     }
     else {
       this.extension.viewer.clearThemingColors();
+      this.extension.viewer.showAll();
+    }
+  }
+
+  fromRGB2Color(rgbString) {
+    if (rgbString) {
+      let colorsInt = rgbString.replaceAll(' ', '').split(',').map(colorString => parseInt(colorString, 10));
+      return new THREE.Vector4(colorsInt[0] / 255, colorsInt[1] / 255, colorsInt[2] / 255, 0.5);
+    }
+    else {
+      return null;
     }
   }
 
   checkTaskStatus(task) {
     let currentDate = new Date();
 
-    let taskStart = new Date(task.start);
-    let taskEnd = new Date(task.end);
+    let taskStart = new Date(task._start);
+    let taskEnd = new Date(task._end);
 
     let shouldHaveStarted = currentDate > taskStart;
     let shouldHaveEnded = currentDate > taskEnd;
 
-    let taskProgress = task.progress;
+    let taskProgress = parseInt(task.progress, 10);
 
     //We need to map finished, in progress, late, not yet started or advanced
     //finished should have started and ended and actually ended (progress 100%)
@@ -179,16 +201,24 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     if (shouldHaveStarted && shouldHaveEnded && taskProgress === 100)
       return 'finished';
 
-    else if (shouldHaveStarted && !shouldHaveEnded && taskProgress > 0)
-      return 'inProgress';
+    else if (shouldHaveStarted && !shouldHaveEnded && taskProgress > 0) {
+      switch (taskProgress) {
+        case 100:
+          return 'advanced';
+        case 0:
+          return 'late';
+        default:
+          return 'inProgress';
+      }
+    }
 
-    else if ((shouldHaveStarted && shouldHaveEnded && taskProgress < 100) || (shouldHaveStarted && !shouldHaveEnded && taskProgress === 0))
+    else if (shouldHaveStarted && shouldHaveEnded && taskProgress < 100)
       return 'late';
 
     else if (!shouldHaveStarted && !shouldHaveEnded && taskProgress === 0)
       return 'notYetStarted';
 
-    else if ((!shouldHaveStarted && taskProgress > 0) || (shouldHaveStarted && !shouldHaveEnded && taskProgress === 100))
+    else if (!shouldHaveStarted && taskProgress > 0)
       return 'advanced';
 
   }
