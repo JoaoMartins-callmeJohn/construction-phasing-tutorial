@@ -1,46 +1,36 @@
 # construction-phasing-tutorial
 
-[![Node.js](https://img.shields.io/badge/Node.js-14.16-blue.svg)](https://nodejs.org/)
-[![npm](https://img.shields.io/badge/npm-6.14-blue.svg)](https://www.npmjs.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-16.15-blue.svg)](https://nodejs.org/)
+[![npm](https://img.shields.io/badge/npm-8.5-blue.svg)](https://www.npmjs.com/)
 ![Platforms](https://img.shields.io/badge/Web-Windows%20%7C%20MacOS%20%7C%20Linux-lightgray.svg)
 [![Data-Management](https://img.shields.io/badge/Data%20Management-v1-green.svg)](http://developer.autodesk.com/)
 
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
-[![Level](https://img.shields.io/badge/Level-Intermediate-blue.svg)](http://developer.autodesk.com/)
+[![Level](https://img.shields.io/badge/Level-Basic-green.svg)](http://developer.autodesk.com/)
 
 ## Description
 
-This sample leverages the new Dashboard tutorial to create a phasing sample.
+This sample leverages the new [Dashboard](https://forge-tutorials.autodesk.io/tutorials/dashboard/) and the Node version of [Simple Viewer](https://forge-tutorials.autodesk.io/tutorials/simple-viewer/) tutorials to create a construction phasing sample.
+Feel free to also use .NET version and [Hubs Browser](https://forge-tutorials.autodesk.io/tutorials/hubs-browser/).
+
 It's based in a configuration defined by a csv in order to map all the available elements in viewer, then categorize them into different packages.
 It uses frappe/gantt as dependency.
 We also need to handle inputs and messages with client, so we're going with sweetalert2 for that.
 
 Here you can check the documentation of the library selected: https://frappe.io/gantt
 
-You can use cdndelivr or yarn (in case you go with Node)
+We're using cdn to reference the required static files on client side.
 
-First step: we need to add a button to upload csv (and with that, select which property will be mapped).
+To make this sample generic, we take advantage of a `config.json` and an input `csv`.
 
-//Below content not up to date
+The `config.json` file specify the way the sample connect the model data with the csv data, and also how it will override the colors of the model to represent the current progress.
 
-### The sample includes the following 2 main features:
+The input `csv` file defines the tasks that will appear on the GANTT chart.
 
-1. Support takeoff project set up, include setting measurement system, importing/updating/exporting takeoff classification systems from/to csv file.
-2. Support handling takeoff items under package, include creating package, list takeoff items under current package or all packages, you can also export these information to a csv file.
+### We can divide this sample in 2 main features:
 
-### To use the sample, you can check the following tasks:
-
-#### Items:
-
-- Display Autodesk Takeoff Inventory in **readable form** or **raw form** in two tables (one for the items grouped and other for all items).
-- Export Autodesk Takeoff Inventory from **current** or **all** packages available in **readable form** or **raw form** from both tables to a CSV file.
-
-#### Project Settings
-
-- Display Takeoff Measurement System currently defined and an interface to modify it (when possible).
-- Display Classifications systems from available classification systems.
-- Export classifications from available classification systems.
-- Import and Update classification systems (when possible).
+1. Generate the GANTT chart based on `csv` input, with elements correlated to tasks
+2. Generate a graphic representation of the progress on the model based on the GANTT chart.
 
 ## Thumbnail
 
@@ -50,71 +40,51 @@ First step: we need to add a button to upload csv (and with that, select which p
 
 You can run this sample live here:
 
-https://autodesk-takeoff-exchange.herokuapp.com
+https://forge-construction-phasing-tutorial.herokuapp.com
 
 and the recording demonstrating how to run here:
 
-https://www.youtube.com/watch?v=pZlKA6NftKY
+https://www.youtube.com/watch?v=
 
 # Web App Setup
 
 ## Prerequisites
 
 1. **Forge Account**: Learn how to create a Forge Account, activate subscription and create an app at [this tutorial](http://learnforge.autodesk.io/#/account/).
-2. **ACC Account**: must be Account Admin to add the app integration. [Learn about provisioning](https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps).
-3. **Autodesk Takeoff**: Create ACC project, activate Takeoff module, according to [the guide](https://knowledge.autodesk.com/support/takeoff/learn-explore/caas/CloudHelp/cloudhelp/ENU/Takeoff-GS/files/Getting-Started-Takeoff-html.html)
-4. **Node.js**: basic knowledge with [**Node.js**](https://nodejs.org/en/).
-5. **JavaScript** basic knowledge with **jQuery**
+2. **Base App**: A basic app from our new tutorial. This can be either [Simple Viewer](https://forge-tutorials.autodesk.io/tutorials/simple-viewer/) or [Hubs Browser](https://forge-tutorials.autodesk.io/tutorials/hubs-browser/). Select any of them (in NODE or .NET) as a base to integrate with client side. This extension is based on [Basic Extension](https://forge-tutorials.autodesk.io/tutorials/dashboard/basic), also available on our new tutorial.
 
 For using this sample, you need an Autodesk developer credentials. Visit the [Forge Developer Portal](https://developer.autodesk.com), sign up for an account, then [create an app](https://developer.autodesk.com/myapps/create). For this new app, use **http://localhost:3000/api/forge/callback/oauth** as Callback URL. Finally take note of the **Client ID** and **Client Secret**.
 
 ## Running locally
 
-Install [NodeJS](https://nodejs.org), version 14 or newer.
+Install [NodeJS](https://nodejs.org), version 16.15 or newer.
 
 Clone this project or download it (this `nodejs` branch only). It's recommended to install [GitHub desktop](https://desktop.github.com/). To clone it via command line, use the following (**Terminal** on MacOSX/Linux, **Git Shell** on Windows):
 
-    git clone https://github.com/Autodesk-Forge/forge-takeoff.exchange.csv
+    git clone (TBD)
 
 Install the required packages using `npm install`.
 
-**Environment variables**
+### Setup & Run
 
-Set the enviroment variables with your client ID & secret and finally start it. Via command line, navigate to the folder where this repository was cloned and use the following:
+- Clone this repository
+- Install dependencies: `yarn install` or `npm install`
+- Setup environment variables:
+  - `FORGE_CLIENT_ID` - your Forge application client ID
+  - `FORGE_CLIENT_SECRET` - your Forge application client secret
+  - `FORGE_BUCKET` (optional) - name of Forge bucket to store your designs in
+- Run the server: `npm start`
 
-Mac OSX/Linux (Terminal)
-
-    npm install
-    export FORGE_CLIENT_ID=<<YOUR CLIENT ID FROM DEVELOPER PORTAL>>
-    export FORGE_CLIENT_SECRET=<<YOUR CLIENT SECRET>>
-    export FORGE_CALLBACK_URL=<<YOUR CALLBACK URL>>
-
-    npm start
-
-Windows (use **Node.js command line** from Start menu)
-
-    npm install
-    set FORGE_CLIENT_ID=<<YOUR CLIENT ID FROM DEVELOPER PORTAL>>
-    set FORGE_CLIENT_SECRET=<<YOUR CLIENT SECRET>>
-    set FORGE_CALLBACK_URL=<<YOUR CALLBACK URL>>
-
-    npm start
+> When using [Visual Studio Code](https://code.visualstudio.com),
+you can specify the env. variables listed above in a _.env_ file in this
+folder, and run & debug the application directly from the editor.
 
 ## Using the app
 
-Open the browser: [http://localhost:3000](http://localhost:3000).
+Open the browser: [http://localhost:8080](http://localhost:3000).
 
-**Please watch the [Video](https://www.youtube.com/watch?v=_SJVh2si40Y) for the detail setup and usage, or follow the steps:**
-
-- **Setup the app before using the App**
-
-1. Make sure to [Create ACC project, activate and configure Takeoff module](https://knowledge.autodesk.com/support/takeoff/learn-explore/caas/CloudHelp/cloudhelp/ENU/Takeoff-GS/files/Getting-Started-Takeoff-html.html).
-
-- **Operate with App after setup**
-
-1. Once you select a project, the sample will load the packages available. **With project and package/classification selected, the takeoff items will be retrieved in the table.**
-2. When **Items** panel is selected, the sample shows a list of packages available and display the content of the selected one in two tables. The first Table shows the data classified according to the selected options and the second table shows each individual takeoff item. At the right side it shows UI to handle **Export** based on **grouped items** or **list of all items** for the selected package or the whole project.
-3. When **Project Settings** panel is selected, the sample shows a list of classification systems available, also list information of the current selected classfication system. At the right side it shows UI to handle **Measurement System**, **Import Classification**, **Update Classification** (these first three might be disables depending on usage on your project) and **Export Classification**.
+1. Once you have a model loaded, the app will require a `csv` to build the tasks.
+2. 
 
 ## Deployment
 
@@ -124,44 +94,13 @@ To deploy this application to Heroku, the **Callback URL** for Forge must use yo
 
 ## Known issues
 
-1. For the extraction as CSV, the fileds containing commas are replaced by blank spaces, so they're not mistaken as another column.
 
 ## Tips & Tricks
 
-1. **When Importing or Updating, the first line of the csv is reserved for header and is ignored.**
-2. **Be aware of the limitations when creating and updating classification system or changing measurement systems.**
-3. **After changing between tabs or projects, it might take some seconds to show the proper buttons and check what is available to change. It's a good practice to wait the loading and then perform the tasks.**
-
-## Troubleshooting
-
-1. **Cannot see my ACC projects**: Make sure to provision the Forge App Client ID within the ACC Account, [learn more here](https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps). This requires the Account Admin permission.
-
-## Further Reading
-
-**Document**:
-
-- This sample is based on [Learn Forge Tutorial](https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/tree/nodejs), please check details there about the basic framework if you are not familar.
-- [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/)
-- [ACC API](https://developer.autodesk.com/en/docs/bim360/v1/overview/) and [App Provisioning](https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps)
-- [Autodesk Takeoff API](https://forge.autodesk.com/en/docs/acc/v1/tutorials/takeoff/)
-- [TAKEOFF API UPDATE BLOG](https://forge.autodesk.com/blog/takeoff-api-enhancement-write-access-settings-classifications-and-packages)
-- [Create ACC project, activate and configure Takeoff module](https://knowledge.autodesk.com/support/takeoff/learn-explore/caas/CloudHelp/cloudhelp/ENU/Takeoff-GS/files/Getting-Started-Takeoff-html.html)
-- [View BIM 360/ACC Models Tutorial](http://learnforge.autodesk.io/#/tutorials/viewhubmodels)
-
-**Blogs**:
-
-- [Forge Blog](https://forge.autodesk.com/blog/autodesk-takeoff-api)
-- [Field of View](https://fieldofviewblog.wordpress.com/), a BIM focused blog
 
 ## License
 
 This sample is licensed under the terms of the [MIT License](http://opensource.org/licenses/MIT). Please see the [LICENSE](LICENSE) file for full details.
-
-# Change History
-
-## Improve Date: 2022-4-18
-
-- Support setting up takeoff project, including measurement system, importing/updating/exporting takeoff classification systems from/to csv file.
 
 ## Written by
 

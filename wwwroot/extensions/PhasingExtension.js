@@ -11,11 +11,10 @@ class PhasingExtension extends BaseExtension {
     async load() {
         super.load();
         await Promise.all([
-            // this.loadScript('https://cdn.jsdelivr.net/npm/sweetalert2@11.js', 'sWEETaLERT2'),
             this.loadScript('https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.js', 'FrappeGantt'),
             this.loadStylesheet('https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css')
         ]);
-        console.log('PhasingExtension loaded.');//
+        console.log('PhasingExtension loaded.');
         return true;
     }
 
@@ -30,6 +29,8 @@ class PhasingExtension extends BaseExtension {
             this._panel.uninitialize();
             this._panel = null;
         }
+        this.viewer.clearThemingColors();
+        this.viewer.showAll();
         console.log('PhasingExtension unloaded.');//
         return true;
     }

@@ -1,25 +1,4 @@
-var PHASING_CONFIG = {
-  tasks: [],
-  //here we have the equivalence between tasks and dbids from the model
-  objects: {},
-  propFilter: 'Type Name',
-  requiredProps: {
-    id: 'ID',
-    taskName: 'NAME',
-    startDate: 'START',
-    endDate: 'END',
-    taskProgress: 'PROGRESS'
-  },
-  mapTaksNProps: {},
-  viewModes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
-  statusColors: {
-    finished: '31, 246, 14',
-    inProgress: '235, 246, 14 ',
-    late: '246, 55, 14',
-    notYetStarted: '',
-    advanced: '14, 28, 246'
-  }
-};
+import { phasing_config } from './config.js';
 
 export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
   constructor(extension, id, title, options) {
@@ -29,8 +8,9 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.style.top = (options.y || 0) + 'px';
     this.container.style.width = (options.width || 500) + 'px';
     this.container.style.height = (options.height || 400) + 'px';
-    this.container.style.resize = 'both';
+    this.container.style.resize = 'horizontal';
     this.container.style.backgroundColor = 'white';
+    this.options = options;
   }
 
   initialize() {
@@ -42,7 +22,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.button = document.createElement('button');
     this.button.innerHTML = 'IMPORT CSV';
     this.button.style.width = '100px';
-    this.button.style.height = '24px';
+    this.button.style.height = (this.options.buttonHeight || 24) + 'px';
     this.button.style.verticalAlign = 'middle';
     this.button.style.backgroundColor = 'white';
     this.button.style.borderRadius = '8px';
@@ -50,18 +30,18 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     //We could also take advantage of one of the existing classes for Viewers buttons
     // button.classList.add('docking-panel-tertiary-button');
-    this.button.onclick = this.inputCSV.bind(this);
+    this.button.onclick = this.importCSV.bind(this);
     this.container.appendChild(this.button);
 
     //Here we create a dropdown to control vision of the GANTT
     this.dropdown = document.createElement('select');
     this.dropdown.style.width = '100px';
-    this.dropdown.style.height = '28px';
+    this.dropdown.style.height = (this.options.dropdownHeight || 28) + 'px';
     this.dropdown.style.verticalAlign = 'middle';
     this.dropdown.style.backgroundColor = 'white';
     this.dropdown.style.borderRadius = '8px';
     this.dropdown.style.borderStyle = 'groove';
-    for (const viewMode of PHASING_CONFIG.viewModes) {
+    for (const viewMode of phasing_config.viewModes) {
       let currentOption = document.createElement('option');
       currentOption.value = viewMode;
       currentOption.innerHTML = viewMode;
@@ -87,58 +67,70 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     this.label = document.createElement('label');
     this.label.for = 'colormodel';
-    this.label.innerHTML = 'Override Color';
+    this.label.innerHTML = 'Show Phases';
     this.label.style.fontSize = '18px';
     this.label.style.verticalAlign = 'middle';
     this.container.appendChild(this.label);
 
     //Here we add the svg for the GANTT chart
     this.content = document.createElement('div');
-    this.content.style.height = '350px';
+    // this.content.style.height = '350px';
     this.content.style.backgroundColor = 'white';
-    this.content.innerHTML = `<svg class="phasing-container"></svg>`;
+    this.content.innerHTML = `<svg id="phasing-container"></svg>`;
     this.container.appendChild(this.content);
 
     this.updateTasks();
   }
 
   update(model, dbids) {
-    if (PHASING_CONFIG.tasks.length === 0) {
+    if (phasing_config.tasks.length === 0) {
       this.inputCSV();
     }
-    model.getBulkProperties(dbids, { propFilter: PHASING_CONFIG.propFilter }, (results) => {
+    model.getBulkProperties(dbids, { propFilter: phasing_config.propFilter }, (results) => {
       results.map((result => {
         this.updateObjects(result);
       }))
     }, (err) => {
       console.error(err);
     });
-    if (PHASING_CONFIG.tasks.length > 0) {
-      this.gantt = new Gantt(".phasing-container", PHASING_CONFIG.tasks, {
-        on_click: this.barCLickEvent.bind(this),
-        on_progress_change: this.handleElementsColor.bind(this),
-        on_date_change: this.handleElementsColor.bind(this)
-      });
+    if (phasing_config.tasks.length > 0) {
+      this.gantt = this.createGanttChart();
     }
   }
 
+  async importCSV() {
+    await this.inputCSV();
+    this.gantt = this.createGanttChart();
+  }
+
+  createGanttChart() {
+    document.getElementById('phasing-container').innerHTML = `<svg id="phasing-container"></svg>`;
+
+    let newGantt = new Gantt("#phasing-container", phasing_config.tasks, {
+      on_click: this.barCLickEvent.bind(this),
+      on_progress_change: this.handleElementsColor.bind(this),
+      on_date_change: this.handleElementsColor.bind(this)
+    });
+
+    return newGantt;
+  }
+
   barCLickEvent(task) {
-    this.extension.viewer.isolate(PHASING_CONFIG.objects[task.id]);
+    this.extension.viewer.isolate(phasing_config.objects[task.id]);
   }
 
   updateObjects(result) {
-    // let currentTaskId = PHASING_CONFIG.mapTaksNProps[result[PHASING_CONFIG.propFilter]];
-    let currentTaskId = PHASING_CONFIG.mapTaksNProps[result.properties[0].displayValue];
+    let currentTaskId = phasing_config.mapTaksNProps[result.properties[0].displayValue];
     if (!!currentTaskId) {
-      if (!PHASING_CONFIG.objects[currentTaskId])
-        PHASING_CONFIG.objects[currentTaskId] = [];
+      if (!phasing_config.objects[currentTaskId])
+        phasing_config.objects[currentTaskId] = [];
 
-      PHASING_CONFIG.objects[currentTaskId].push(result.dbId);
+      phasing_config.objects[currentTaskId].push(result.dbId);
     }
   }
 
   updateTasks() {
-    if (PHASING_CONFIG.tasks.length === 0) {
+    if (phasing_config.tasks.length === 0) {
       this.inputCSV();
     }
   }
@@ -150,8 +142,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       let mappeddbIds = [];
       for (let index = 0; index < this.gantt.tasks.length; index++) {
         const currentTaskId = this.gantt.tasks[index].id;
-        const currentdbIds = PHASING_CONFIG.objects[currentTaskId];
-        const colorVector4 = this.fromRGB2Color(PHASING_CONFIG.statusColors[tasksNStatusArray[index]]);
+        const currentdbIds = phasing_config.objects[currentTaskId];
+        const colorVector4 = this.fromRGB2Color(phasing_config.statusColors[tasksNStatusArray[index]]);
         currentdbIds.forEach(dbId => {
           if (colorVector4) {
             this.extension.viewer.setThemingColor(dbId, colorVector4)
@@ -201,7 +193,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     if (shouldHaveStarted && shouldHaveEnded && taskProgress === 100)
       return 'finished';
 
-    else if (shouldHaveStarted && !shouldHaveEnded && taskProgress > 0) {
+    else if (shouldHaveStarted && !shouldHaveEnded) {
       switch (taskProgress) {
         case 100:
           return 'advanced';
@@ -248,7 +240,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
           let header = lines[0];
           lines.shift();
           let newTasks = lines.map(line => this.lineToObject(line, header));
-          PHASING_CONFIG.tasks = newTasks;
+          phasing_config.tasks = newTasks;
         }
       }
       reader.readAsBinaryString(file);
@@ -261,23 +253,23 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     let inputHeaders = inputHeadersLine.split(',');
     let newObject = {};
     // Object.keys(newObject) = PHASING_CONFIG.requiredProps;
-    Object.values(PHASING_CONFIG.requiredProps).forEach(requiredProp => {
-      newObject.id = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.id)];
-      newObject.name = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.taskName)];
-      newObject.start = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.startDate)];
-      newObject.end = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.endDate)];
-      newObject.progress = parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.requiredProps.taskProgress)];
+    Object.values(phasing_config.requiredProps).forEach(requiredProp => {
+      newObject.id = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.id)];
+      newObject.name = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.taskName)];
+      newObject.start = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.startDate)];
+      newObject.end = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.endDate)];
+      newObject.progress = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.taskProgress)];
     });
-    this.addPropToMask(parameters[inputHeaders.findIndex(h => h === PHASING_CONFIG.propFilter)], newObject.id);
+    this.addPropToMask(parameters[inputHeaders.findIndex(h => h === phasing_config.propFilter)], newObject.id);
     return newObject;
   }
 
   addPropToMask(filterValue, taskId) {
-    PHASING_CONFIG.mapTaksNProps[filterValue] = taskId;
+    phasing_config.mapTaksNProps[filterValue] = taskId;
   }
 
   validateCSV(line) {
     let parameters = line.split(',');
-    return Object.values(PHASING_CONFIG.requiredProps).every((currentProp) => !!parameters.find(p => p === currentProp));
+    return Object.values(phasing_config.requiredProps).every((currentProp) => !!parameters.find(p => p === currentProp));
   }
 }
