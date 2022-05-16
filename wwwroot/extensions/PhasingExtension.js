@@ -36,7 +36,7 @@ class PhasingExtension extends BaseExtension {
     }
 
     onToolbarCreated() {
-        this._panel = new PhasingPanel(this, 'dashboard-phases-panel', 'Phases', { x: 10, y: 10 });//
+        this._panel = new PhasingPanel(this, 'dashboard-phases-panel', 'Schedule', { x: 10, y: 10 });//
         this._button = this.createToolbarButton('dashboard-phases-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Gantt Chart');//
         this._button.onClick = () => {
             this._panel.setVisible(!this._panel.isVisible());

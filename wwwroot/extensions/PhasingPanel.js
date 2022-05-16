@@ -31,7 +31,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     //We could also take advantage of one of the existing classes for Viewers buttons
     // button.classList.add('docking-panel-tertiary-button');
     this.button.onclick = this.importCSV.bind(this);
-    this.container.appendChild(this.button);
+    // this.container.appendChild(this.button);
 
     //Here we create a dropdown to control vision of the GANTT
     this.dropdown = document.createElement('select');

@@ -1,25 +1,28 @@
 import { initViewer, loadModel } from './viewer.js';
 
 initViewer(document.getElementById('preview')).then(viewer => {
-    const urn = window.location.hash?.substring(1);
+    // const urn = window.location.hash?.substring(1);
+    const urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6anBvbS1jb25zdHJ1Y3Rpb24tcGhhc2luZy9yYWNiYXNpY3NhbXBsZXByb2plY3QucnZ0';
     setupModelSelection(viewer, urn);
     setupModelUpload(viewer);
 });
 
 async function setupModelSelection(viewer, selectedUrn) {
-    const dropdown = document.getElementById('models');
-    dropdown.innerHTML = '';
+    // const dropdown = document.getElementById('models');
+    // dropdown.innerHTML = '';
     try {
-        const resp = await fetch('/api/models');
-        if (!resp.ok) {
-            throw new Error(await resp.text());
-        }
-        const models = await resp.json();
-        dropdown.innerHTML = models.map(model => `<option value=${model.urn} ${model.urn === selectedUrn ? 'selected' : ''}>${model.name}</option>`).join('\n');
-        dropdown.onchange = () => onModelSelected(viewer, dropdown.value);
-        if (dropdown.value) {
-            onModelSelected(viewer, dropdown.value);
-        }
+        // const resp = await fetch('/api/models');
+        // if (!resp.ok) {
+        //     throw new Error(await resp.text());
+        // }
+        // const models = await resp.json();
+        // dropdown.innerHTML = models.map(model => `<option value=${model.urn} ${model.urn === selectedUrn ? 'selected' : ''}>${model.name}</option>`).join('\n');
+        // dropdown.onchange = () => onModelSelected(viewer, dropdown.value);
+        const urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6anBvbS1jb25zdHJ1Y3Rpb24tcGhhc2luZy9yYWNiYXNpY3NhbXBsZXByb2plY3QucnZ0';
+        // if (dropdown.value) {
+        //     onModelSelected(viewer, dropdown.value);
+        // }
+        onModelSelected(viewer, urn);
     } catch (err) {
         alert('Could not list models. See the console for more details.');
         console.error(err);
@@ -30,35 +33,35 @@ async function setupModelUpload(viewer) {
     const upload = document.getElementById('upload');
     const input = document.getElementById('input');
     const models = document.getElementById('models');
-    upload.onclick = () => input.click();
-    input.onchange = async () => {
-        const file = input.files[0];
-        let data = new FormData();
-        data.append('model-file', file);
-        if (file.name.endsWith('.zip')) { // When uploading a zip file, ask for the main design file in the archive
-            const entrypoint = window.prompt('Please enter the filename of the main design inside the archive.');
-            data.append('model-zip-entrypoint', entrypoint);
-        }
-        upload.setAttribute('disabled', 'true');
-        models.setAttribute('disabled', 'true');
-        showNotification(`Uploading model <em>${file.name}</em>. Do not reload the page.`);
-        try {
-            const resp = await fetch('/api/models', { method: 'POST', body: data });
-            if (!resp.ok) {
-                throw new Error(await resp.text());
-            }
-            const model = await resp.json();
-            setupModelSelection(viewer, model.urn);
-        } catch (err) {
-            alert(`Could not upload model ${file.name}. See the console for more details.`);
-            console.error(err);
-        } finally {
-            clearNotification();
-            upload.removeAttribute('disabled');
-            models.removeAttribute('disabled');
-            input.value = '';
-        }
-    };
+    // upload.onclick = () => input.click();
+    // input.onchange = async () => {
+    //     const file = input.files[0];
+    //     let data = new FormData();
+    //     data.append('model-file', file);
+    //     if (file.name.endsWith('.zip')) { // When uploading a zip file, ask for the main design file in the archive
+    //         const entrypoint = window.prompt('Please enter the filename of the main design inside the archive.');
+    //         data.append('model-zip-entrypoint', entrypoint);
+    //     }
+    //     upload.setAttribute('disabled', 'true');
+    //     models.setAttribute('disabled', 'true');
+    //     showNotification(`Uploading model <em>${file.name}</em>. Do not reload the page.`);
+    //     try {
+    //         const resp = await fetch('/api/models', { method: 'POST', body: data });
+    //         if (!resp.ok) {
+    //             throw new Error(await resp.text());
+    //         }
+    //         const model = await resp.json();
+    //         setupModelSelection(viewer, model.urn);
+    //     } catch (err) {
+    //         alert(`Could not upload model ${file.name}. See the console for more details.`);
+    //         console.error(err);
+    //     } finally {
+    //         clearNotification();
+    //         upload.removeAttribute('disabled');
+    //         models.removeAttribute('disabled');
+    //         input.value = '';
+    //     }
+    // };
 }
 
 async function onModelSelected(viewer, urn) {
@@ -87,7 +90,7 @@ async function onModelSelected(viewer, urn) {
             default:
                 clearNotification();
                 loadModel(viewer, urn);
-                break; 
+                break;
         }
     } catch (err) {
         alert('Could not load model. See the console for more details.');
