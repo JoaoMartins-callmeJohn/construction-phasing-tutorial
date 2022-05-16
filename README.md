@@ -84,7 +84,6 @@ folder, and run & debug the application directly from the editor.
 Open the browser: [http://localhost:8080](http://localhost:3000).
 
 1. Once you have a model loaded, the app will require a `csv` to build the tasks.
-2. 
 
 ## Deployment
 
