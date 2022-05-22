@@ -11,8 +11,8 @@ export const phasing_config = {
   },
   "mapTaksNProps": {},
   "viewModes": [
-    "Quarter Day",
-    "Half Day",
+    // "Quarter Day",
+    // "Half Day",
     "Day",
     "Week",
     "Month"

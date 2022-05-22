@@ -8,21 +8,33 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.style.top = (options.y || 0) + 'px';
     this.container.style.width = (options.width || 500) + 'px';
     this.container.style.height = (options.height || 400) + 'px';
-    this.container.style.resize = 'horizontal';
+    this.container.style.resize = 'both';
     this.container.style.backgroundColor = 'white';
     this.options = options;
   }
 
   initialize() {
+
+    // This will rese our panel
+    this.isVertical = false;
+
     this.title = this.createTitleBar(this.titleLabel || this.container.id);
+    this.title.style.overflow = 'auto';
+    // this.title.ondblclick = this.toggleOrientation.bind(this);
     this.initializeMoveHandlers(this.title);
     this.container.appendChild(this.title);
+    // this.container.ondblclick = this.toggleOrientation.bind(this);
+
+    this.div = document.createElement('div');
+    this.div.ondblclick = this.toggleOrientation.bind(this);
+    this.container.appendChild(this.div);
 
     //Here we add the button to update the csv
     this.button = document.createElement('button');
     this.button.innerHTML = 'IMPORT CSV';
     this.button.style.width = '100px';
     this.button.style.height = (this.options.buttonHeight || 24) + 'px';
+    this.button.style.margin = '5px';
     this.button.style.verticalAlign = 'middle';
     this.button.style.backgroundColor = 'white';
     this.button.style.borderRadius = '8px';
@@ -31,12 +43,13 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     //We could also take advantage of one of the existing classes for Viewers buttons
     // button.classList.add('docking-panel-tertiary-button');
     this.button.onclick = this.importCSV.bind(this);
-    this.container.appendChild(this.button);
+    this.div.appendChild(this.button);
 
     //Here we create a dropdown to control vision of the GANTT
     this.dropdown = document.createElement('select');
     this.dropdown.style.width = '100px';
     this.dropdown.style.height = (this.options.dropdownHeight || 28) + 'px';
+    this.dropdown.style.margin = '5px';
     this.dropdown.style.verticalAlign = 'middle';
     this.dropdown.style.backgroundColor = 'white';
     this.dropdown.style.borderRadius = '8px';
@@ -49,7 +62,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     }
 
     this.dropdown.onchange = this.changeViewMode.bind(this);
-    this.container.appendChild(this.dropdown);
+    this.div.appendChild(this.dropdown);
 
     //Here we create a switch to control vision of the schedule based on the GANTT chart
     this.checkbox = document.createElement('input');
@@ -57,20 +70,22 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.checkbox.id = 'colormodel';
     this.checkbox.style.width = '30px';
     this.checkbox.style.height = '28px';
+    this.checkbox.style.margin = '0 0 0 ' + '5px';
     this.checkbox.style.verticalAlign = 'middle';
     this.checkbox.style.backgroundColor = 'white';
     this.checkbox.style.borderRadius = '8px';
     this.checkbox.style.borderStyle = 'groove';
 
-    this.checkbox.onchange = this.handleElementsColor.bind(this);
-    this.container.appendChild(this.checkbox);
+    // this.checkbox.onchange = this.handleElementsColor.bind(this);
+    this.checkbox.onchange = this.handleColors.bind(this);
+    this.div.appendChild(this.checkbox);
 
     this.label = document.createElement('label');
     this.label.for = 'colormodel';
     this.label.innerHTML = 'Show Phases';
     this.label.style.fontSize = '18px';
     this.label.style.verticalAlign = 'middle';
-    this.container.appendChild(this.label);
+    this.div.appendChild(this.label);
 
     //Here we add the svg for the GANTT chart
     this.content = document.createElement('div');
@@ -80,6 +95,28 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.appendChild(this.content);
 
     this.updateTasks();
+  }
+
+  toggleOrientation() {
+    const { left: startX, top: startY, right: endX, bottom: endY } = this.extension.viewer.impl.getCanvasBoundingClientRect();
+
+    let defaultPanelHeigth = (this.options.height || 400);
+    let defaultPanelWidth = (this.options.width || 500);
+
+    if (this.isVertical) {
+      this.container.style.width = (endX - startX - 20) + 'px';
+      this.container.style.height = defaultPanelHeigth + 'px';
+      this.container.style.left = (this.options.x || 0) + 'px';
+      this.container.style.top = (endY - startY - defaultPanelHeigth - this.options.y) + 'px';
+    }
+    else {
+      this.container.style.width = defaultPanelWidth + 'px';
+      this.container.style.height = (endY - startY - 20) + 'px';
+      this.container.style.left = (this.options.x || 0) + 'px';
+      this.container.style.top = (this.options.y || 0) + 'px';
+    }
+
+    this.isVertical = !this.isVertical;
   }
 
   update(model, dbids) {
@@ -95,12 +132,16 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     });
     if (phasing_config.tasks.length > 0) {
       this.gantt = this.createGanttChart();
+      this.handleColors.call(this);
     }
+
+    this.toggleOrientation();
   }
 
   async importCSV() {
     await this.inputCSV();
     this.gantt = this.createGanttChart();
+    this.handleColors.call(this);
   }
 
   createGanttChart() {
@@ -108,8 +149,10 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     let newGantt = new Gantt("#phasing-container", phasing_config.tasks, {
       on_click: this.barCLickEvent.bind(this),
-      on_progress_change: this.handleElementsColor.bind(this),
-      on_date_change: this.handleElementsColor.bind(this)
+      // on_progress_change: this.handleElementsColor.bind(this),
+      // on_date_change: this.handleElementsColor.bind(this)
+      on_progress_change: this.handleColors.bind(this),
+      on_date_change: this.handleColors.bind(this)
     });
 
     return newGantt;
@@ -133,6 +176,11 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     if (phasing_config.tasks.length === 0) {
       this.inputCSV();
     }
+  }
+
+  handleColors() {
+    this.handleElementsColor.call(this);
+    this.handleBarsColor.call(this);
   }
 
   handleElementsColor() {
@@ -160,6 +208,14 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.extension.viewer.clearThemingColors();
       this.extension.viewer.showAll();
     }
+  }
+
+  handleBarsColor() {
+    this.gantt.bars.map(bar => {
+      let tasksStatus = this.checkTaskStatus(bar.task);
+      let barColor = phasing_config.statusColors[tasksStatus];
+      bar.$bar.style = `fill: rgb(${barColor})`;
+    })
   }
 
   fromRGB2Color(rgbString) {
@@ -217,6 +273,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
   changeViewMode(event) {
     this.gantt.change_view_mode(event.target.value);
+    this.handleColors.call(this);
   }
 
   async inputCSV() {
