@@ -1,3 +1,6 @@
-ID,NAME,START,END,PROGRESS,Type Name
-123,Walls,2022-04-22,2022-05-22,50,Wall - Timber Clad
-124,Floors,2022-02-22,2022-04-22,100,Concrete-Domestic 425mm
+ID,NAME,START,END,PROGRESS,Type Name,DEPENDENCIES
+123,Timber Floors,2022-03-10,2022-04-04,100,Timber Suspended Floor,
+124,Timber Walls,2022-04-22,2022-05-22,50,Wall - Timber Clad,123
+125,Floors - 150,2022-02-22,2022-04-22,100,Generic 150mm,
+126,Floors - 300,2022-04-25,2022-05-13,100,Generic 300,125
+127,SIP Walls,2022-05-22,2022-06-05,50,SIP 202mm Wall - conc clad,126

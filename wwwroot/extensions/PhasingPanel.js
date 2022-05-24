@@ -323,6 +323,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       newObject.start = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.startDate)];
       newObject.end = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.endDate)];
       newObject.progress = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.taskProgress)];
+      newObject.dependencies = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.dependencies)];
+      newObject.dependencies.replaceAll('-', ',');
     });
     this.addPropToMask(parameters[inputHeaders.findIndex(h => h === phasing_config.propFilter)], newObject.id);
     return newObject;

@@ -7,7 +7,8 @@ export const phasing_config = {
     "taskName": "NAME",
     "startDate": "START",
     "endDate": "END",
-    "taskProgress": "PROGRESS"
+    "taskProgress": "PROGRESS",
+    "dependencies": "DEPENDENCIES"
   },
   "mapTaksNProps": {},
   "viewModes": [
