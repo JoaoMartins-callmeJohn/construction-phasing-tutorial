@@ -98,6 +98,34 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.appendChild(this.content);
 
     this.updateTasks();
+
+    // const hotkeys = [{
+    //   keycodes: [
+    //     Autodesk.Viewing.KeyCode.ESCAPE
+    //   ],
+    //   onRelease: this.pressKey.bind(this)
+    // }];
+    // this.extension.viewer.getHotkeyManager().pushHotkeys(this.escapeHotkeyId, hotkeys);
+  }
+
+  async pressKey() {
+    const selection = this._panel.extension.viewer.getSelection();
+    const { value: selectedStatus } = await Swal.fire({
+      title: 'Choose the new Status for selected objects',
+      input: 'radio',
+      inputOptions: phasing_config.statusLabels,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to choose a Status!'
+        }
+      }
+    })
+
+    if (selectedStatus) {
+      selection.forEach(dbId => {
+        phasing_config.updatedIds[dbId] = selectedStatus;
+      });
+    }
   }
 
   selectDayOption() {
@@ -196,8 +224,12 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       for (let index = 0; index < this.gantt.tasks.length; index++) {
         const currentTaskId = this.gantt.tasks[index].id;
         const currentdbIds = phasing_config.objects[currentTaskId];
-        const colorVector4 = this.fromRGB2Color(phasing_config.statusColors[tasksNStatusArray[index]]);
+        let colorVector4 = this.fromRGB2Color(phasing_config.statusColors[tasksNStatusArray[index]]);
         currentdbIds.forEach(dbId => {
+          //Added for updated elements
+          if (Object.keys(phasing_config.updatedIds).includes(id => id === dbId))
+            colorVector4 = this.fromRGB2Color(phasing_config.statusColors[phasing_config.updatedIds[dbId]]);
+
           if (colorVector4) {
             this.extension.viewer.setThemingColor(dbId, colorVector4)
           }
@@ -244,6 +276,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     let taskProgress = parseInt(task.progress, 10);
 
+    let incrementProgress = this.updateProgress(task);
+
     //We need to map finished, in progress, late, not yet started or advanced
     //finished should have started and ended and actually ended (progress 100%)
     //in progress should have started, not ended and progress should be greater than 0
@@ -274,6 +308,26 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     else if (!shouldHaveStarted && taskProgress > 0)
       return 'advanced';
 
+  }
+
+  updateProgress(task) {
+    const taskObjects = phasing_config.objects[task.id];
+    let unitIncrement = 0;
+    taskObjects.forEach(taskObject => {
+      if (Object.keys(phasing_config.updatedIds.includes(taskObject))) {
+        switch (phasing_config.updatedIds[taskObject]) {
+          case 'finished':
+            unitIncrement += 1;
+            break;
+          case 'inProgress':
+            break;
+          case 'notYetStarted':
+            unitIncrement -= 1;
+            break;
+        }
+      }
+
+    });
   }
 
   changeViewMode(event) {

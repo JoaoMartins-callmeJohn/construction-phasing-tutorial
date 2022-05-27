@@ -57,6 +57,14 @@ class PhasingExtension extends BaseExtension {
     async update() {
         const dbids = await this.findLeafNodes(this.viewer.model);
         this._panel.update(this.viewer.model, dbids);
+
+        const hotkeys = [{
+            keycodes: [
+                Autodesk.Viewing.KeyCode.u
+            ],
+            onRelease: this._panel.pressKey.bind(this)
+        }];
+        this.viewer.getHotkeyManager().pushHotkeys('050020080010', hotkeys);
     }
 }
 

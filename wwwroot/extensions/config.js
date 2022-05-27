@@ -24,5 +24,11 @@ export const phasing_config = {
     "late": "246,55,14",
     "notYetStarted": "",
     "advanced": "14,28,246"
-  }
+  },
+  "statusLabels": {
+    "finished": "Complete",
+    // "inProgress": "In Progress",
+    "notYetStarted": "Not Started"
+  },
+  "updatedIds": {}
 }
