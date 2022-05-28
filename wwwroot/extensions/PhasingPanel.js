@@ -97,6 +97,28 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.content.innerHTML = `<svg id="phasing-container"></svg>`;
     this.container.appendChild(this.content);
 
+    this.dockleft = document.createElement('img');
+    //https://icons8.com/icon/105589/left-docking
+    this.dockleft.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAABGklEQVRoge2ZMQ6CQBBFn8bGxgNI7Rltbb2JFvbeiZgIjSUWsIYQdiMws8sm85IpDOuf/7MTNgAYhmGsmRPwAGqgWVg1cAeKmOZfAsaHVcYK8VAw7+oWI4DE2PjqLWVyE7jWTFj7D9J6AGwlRFJiAVKzm7B2OMOrIPsdyCXAZc6ftM4AV1PMzxrfuQ0l9Zz5LAP0zWcXYGg+qwBj5rMJ4DOfRYCQeW//NZ0DH2nBFCN0HlmXzQg5fCHUGmrojYVQbaihNwyh3lBDrx8iSkMNPRdilCkPNKm4AnvfRXsrkRoLkBoLkJrQbbQGDr3fEmeBo5ISCu3AU6pJZO0fBe3HiNBDxpwqgWOMAHSNbrRbvtR41WlFM28YhqHPF0NRPAWhEg4IAAAAAElFTkSuQmCC';
+    this.dockleft.style.width = (this.options.imageWidth || 30) + 'px';
+    this.dockleft.style.height = (this.options.imageHeight || 28) + 'px';
+    this.dockleft.style.margin = '0 0 0 ' + (this.options.margin || 10) + 'px';
+    this.dockleft.style.verticalAlign = (this.options.verticalAlign || 'middle');
+    this.dockleft.onclick = this.toggleOrientation.bind(this, false);
+    this.div.appendChild(this.dockleft);
+
+    this.dockbottom = document.createElement('img');
+    //https://icons8.com/icon/105606/bottom-docking
+    this.dockbottom.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAAA+0lEQVRoge2XsQ6CMBCGP9RV4yyzz+hofBsc2F0dfBriAC+AAzQhBBp6plxJ7ktuIC30+3OQUjAMw9g6N6AV1l3BdxJJiGTkHSEhkpN3LAmRrLzDFyJ5ecdUiM3IO4YhosnvYz0Y+AAZ8AYeEdcxDMPDFSiBBvn/jrQa4Ank/8h/FcTHVUlDlAnIuyrmJDNPgAY4BoaORQ2cpwZ8AdqAuTFYtP5uBZGoWABtDgFzx+9kEmy+AxZAm5BvQHsfmGTzHbAA2lgAbSyANr59oAFOg2vNf6F6bsDXgVcEESkil5zuQK19Hq6AiyQA/Y0FXQvXFq/7tcXyhmEY8fkBDhLw1fWJwhgAAAAASUVORK5CYII=';
+    this.dockbottom.style.width = (this.options.imageWidth || 30) + 'px';
+    this.dockbottom.style.height = (this.options.imageHeight || 28) + 'px';
+    this.dockbottom.style.margin = '0 0 0 ' + (this.options.margin || 10) + 'px';
+    this.dockbottom.style.verticalAlign = (this.options.verticalAlign || 'middle');
+    this.dockbottom.onclick = this.toggleOrientation.bind(this, true);
+    this.div.appendChild(this.dockbottom);
+
+    // this.div.ondblclick = this.toggleOrientation.bind(this);
+
     this.updateTasks();
   }
 
@@ -104,13 +126,13 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     // this.dropdown.options.item(this.currentViewMode).selected = true;
   }
 
-  toggleOrientation() {
+  toggleOrientation(isVertical) {
     const { left: startX, top: startY, right: endX, bottom: endY } = this.extension.viewer.impl.getCanvasBoundingClientRect();
 
     let defaultPanelHeigth = (this.options.height || 400);
     let defaultPanelWidth = (this.options.width || 500);
 
-    if (this.isVertical) {
+    if (isVertical) {
       this.container.style.width = (endX - startX - 20) + 'px';
       this.container.style.height = defaultPanelHeigth + 'px';
       this.container.style.left = (this.options.x || 0) + 'px';
@@ -123,7 +145,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.container.style.top = (this.options.y || 0) + 'px';
     }
 
-    this.isVertical = !this.isVertical;
   }
 
   update(model, dbids) {
