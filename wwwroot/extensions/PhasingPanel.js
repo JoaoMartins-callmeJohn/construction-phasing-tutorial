@@ -9,6 +9,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.style.width = (options.width || 500) + 'px';
     this.container.style.height = (options.height || 400) + 'px';
     this.container.style.resize = 'both';
+    this.container.style.overflow = 'overlay';
     this.container.style.backgroundColor = 'white';
     this.options = options;
     this.currentViewMode = 'Day';
@@ -161,7 +162,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     if (phasing_config.tasks.length > 0) {
       this.gantt = this.createGanttChart();
       this.handleColors.call(this);
-      // this.selectDayOption.call(this);
       this.changeViewMode.call(this);
     }
   }
