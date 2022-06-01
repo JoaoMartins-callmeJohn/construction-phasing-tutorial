@@ -16,15 +16,13 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
   initialize() {
 
-    // This will rese our panel
+    // This will resie our panel
     this.isVertical = false;
 
     this.title = this.createTitleBar(this.titleLabel || this.container.id);
     this.title.style.overflow = 'auto';
-    // this.title.ondblclick = this.toggleOrientation.bind(this);
     this.initializeMoveHandlers(this.title);
     this.container.appendChild(this.title);
-    // this.container.ondblclick = this.toggleOrientation.bind(this);
 
     this.div = document.createElement('div');
     this.div.ondblclick = this.toggleOrientation.bind(this);
@@ -219,7 +217,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
   handleElementsColor() {
     const overrideCheckbox = document.getElementById('colormodel');
     if (overrideCheckbox.checked) {
-      let tasksNStatusArray = this.gantt.tasks.map(this.checkTaskStatus);
+      let tasksNStatusArray = this.gantt.tasks.map(this.checkTaskStatus.bind(this));
       let mappeddbIds = [];
       for (let index = 0; index < this.gantt.tasks.length; index++) {
         const currentTaskId = this.gantt.tasks[index].id;
@@ -249,7 +247,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
   handleBarsColor() {
     this.gantt.bars.map(bar => {
-      let tasksStatus = this.checkTaskStatus(bar.task);
+      let tasksStatus = this.checkTaskStatus.call(bar.task);
       let barColor = phasing_config.statusColors[tasksStatus];
       bar.$bar.style = `fill: rgb(${barColor})`;
     })
@@ -314,7 +312,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     const taskObjects = phasing_config.objects[task.id];
     let unitIncrement = 0;
     taskObjects.forEach(taskObject => {
-      if (Object.keys(phasing_config.updatedIds.includes(taskObject))) {
+      if (Object.keys(phasing_config.updatedIds).includes(taskObject)) {
         switch (phasing_config.updatedIds[taskObject]) {
           case 'finished':
             unitIncrement += 1;
@@ -326,8 +324,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
             break;
         }
       }
-
     });
+    return unitIncrement;
   }
 
   changeViewMode(event) {
