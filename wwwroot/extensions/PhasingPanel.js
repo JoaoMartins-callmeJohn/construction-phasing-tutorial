@@ -22,10 +22,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
     this.title = this.createTitleBar(this.titleLabel || this.container.id);
     this.title.style.overflow = 'auto';
-    // this.title.ondblclick = this.toggleOrientation.bind(this);
     this.initializeMoveHandlers(this.title);
     this.container.appendChild(this.title);
-    // this.container.ondblclick = this.toggleOrientation.bind(this);
 
     this.div = document.createElement('div');
     this.div.ondblclick = this.toggleOrientation.bind(this);
@@ -42,8 +40,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.button.style.borderRadius = (this.options.borderRadius || 8) + 'px';
     this.button.style.borderStyle = (this.options.borderStyle || 'groove');
 
-    //We could also take advantage of one of the existing classes for Viewers buttons
-    // button.classList.add('docking-panel-tertiary-button');
     this.button.onclick = this.importCSV.bind(this);
     this.div.appendChild(this.button);
 
@@ -60,11 +56,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       let currentOption = document.createElement('option');
       currentOption.value = viewMode;
       currentOption.innerHTML = viewMode;
-      // if (currentOption.value === 'Day')
-      //   currentOption.selected = true;
       this.dropdown.appendChild(currentOption);
     }
-    // this.selectDayOption.call(this);
 
     this.dropdown.onchange = this.changeViewMode.bind(this);
     this.div.appendChild(this.dropdown);
@@ -117,8 +110,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.dockbottom.style.verticalAlign = (this.options.verticalAlign || 'middle');
     this.dockbottom.onclick = this.toggleOrientation.bind(this, true);
     this.div.appendChild(this.dockbottom);
-
-    // this.div.ondblclick = this.toggleOrientation.bind(this);
 
     this.updateTasks();
   }
