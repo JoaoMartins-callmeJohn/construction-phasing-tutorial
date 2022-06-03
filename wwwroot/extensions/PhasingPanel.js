@@ -17,16 +17,12 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
 
   initialize() {
 
-    // This will rese our panel
-    this.isVertical = false;
-
     this.title = this.createTitleBar(this.titleLabel || this.container.id);
     this.title.style.overflow = 'auto';
     this.initializeMoveHandlers(this.title);
     this.container.appendChild(this.title);
 
     this.div = document.createElement('div');
-    this.div.ondblclick = this.toggleOrientation.bind(this);
     this.container.appendChild(this.div);
 
     //Here we add the button to update the csv
