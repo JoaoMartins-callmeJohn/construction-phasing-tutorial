@@ -1,6 +1,5 @@
 export const phasing_config = {
   "tasks": [],
-  "objects": {},
   "propFilter": "Type Name",
   "requiredProps": {
     "id": "ID",
@@ -9,6 +8,5 @@ export const phasing_config = {
     "endDate": "END",
     "taskProgress": "PROGRESS",
     "dependencies": "DEPENDENCIES"
-  },
-  "mapTaksNProps": {}
+  }
 }
