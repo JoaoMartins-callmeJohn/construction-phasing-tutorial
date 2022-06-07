@@ -38,17 +38,8 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     if (phasing_config.tasks.length === 0) {
       this.inputCSV();
     }
-    model.getBulkProperties(dbids, { propFilter: phasing_config.propFilter }, (results) => {
-      results.map((result => {
-        this.updateObjects(result);
-      }))
-    }, (err) => {
-      console.error(err);
-    });
     if (phasing_config.tasks.length > 0) {
       this.gantt = this.createGanttChart();
-      this.handleColors.call(this);
-      this.changeViewMode.call(this);
     }
   }
 
@@ -64,16 +55,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     let newGantt = new Gantt("#phasing-container", phasing_config.tasks);
 
     return newGantt;
-  }
-
-  updateObjects(result) {
-    let currentTaskId = phasing_config.mapTaksNProps[result.properties[0].displayValue];
-    if (!!currentTaskId) {
-      if (!phasing_config.objects[currentTaskId])
-        phasing_config.objects[currentTaskId] = [];
-
-      phasing_config.objects[currentTaskId].push(result.dbId);
-    }
   }
 
   updateTasks() {
@@ -125,12 +106,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       newObject.dependencies = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.dependencies)];
       newObject.dependencies.replaceAll('-', ',');
     });
-    this.addPropToMask(parameters[inputHeaders.findIndex(h => h === phasing_config.propFilter)], newObject.id);
     return newObject;
-  }
-
-  addPropToMask(filterValue, taskId) {
-    phasing_config.mapTaksNProps[filterValue] = taskId;
   }
 
   validateCSV(line) {
