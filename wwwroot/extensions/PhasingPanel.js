@@ -69,6 +69,7 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     });
     if (phasing_config.tasks.length > 0) {
       this.gantt = this.createGanttChart();
+      this.handleColors.call(this);
     }
   }
 
