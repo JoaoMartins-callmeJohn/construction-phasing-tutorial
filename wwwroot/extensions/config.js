@@ -17,5 +17,12 @@ export const phasing_config = {
     "late": "246,55,14",
     "notYetStarted": "",
     "advanced": "14,28,246"
-  }
+  },
+  "viewModes": [
+    // "Quarter Day",
+    // "Half Day",
+    "Day",
+    "Week",
+    "Month"
+  ]
 }
