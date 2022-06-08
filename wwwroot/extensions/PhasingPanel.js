@@ -26,18 +26,32 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.container.appendChild(this.div);
 
     //Here we add the button to update the csv
-    this.button = document.createElement('button');
-    this.button.innerHTML = 'IMPORT CSV';
-    this.button.style.width = (this.options.buttonWidth || 100) + 'px';
-    this.button.style.height = (this.options.buttonHeight || 24) + 'px';
-    this.button.style.margin = (this.options.margin || 5) + 'px';
-    this.button.style.verticalAlign = (this.options.verticalAlign || 'middle');
-    this.button.style.backgroundColor = (this.options.backgroundColor || 'white');
-    this.button.style.borderRadius = (this.options.borderRadius || 8) + 'px';
-    this.button.style.borderStyle = (this.options.borderStyle || 'groove');
+    this.importbutton = document.createElement('button');
+    this.importbutton.innerHTML = 'IMPORT CSV';
+    this.importbutton.style.width = (this.options.buttonWidth || 100) + 'px';
+    this.importbutton.style.height = (this.options.buttonHeight || 24) + 'px';
+    this.importbutton.style.margin = (this.options.margin || 5) + 'px';
+    this.importbutton.style.verticalAlign = (this.options.verticalAlign || 'middle');
+    this.importbutton.style.backgroundColor = (this.options.backgroundColor || 'white');
+    this.importbutton.style.borderRadius = (this.options.borderRadius || 8) + 'px';
+    this.importbutton.style.borderStyle = (this.options.borderStyle || 'groove');
 
-    this.button.onclick = this.importCSV.bind(this);
-    this.div.appendChild(this.button);
+    this.importbutton.onclick = this.importCSV.bind(this);
+    this.div.appendChild(this.importbutton);
+
+    //Here we add the button to export the Gantt as csv
+    this.exportbutton = document.createElement('button');
+    this.exportbutton.innerHTML = 'Export CSV';
+    this.exportbutton.style.width = (this.options.buttonWidth || 100) + 'px';
+    this.exportbutton.style.height = (this.options.buttonHeight || 24) + 'px';
+    this.exportbutton.style.margin = (this.options.margin || 5) + 'px';
+    this.exportbutton.style.verticalAlign = (this.options.verticalAlign || 'middle');
+    this.exportbutton.style.backgroundColor = (this.options.backgroundColor || 'white');
+    this.exportbutton.style.borderRadius = (this.options.borderRadius || 8) + 'px';
+    this.exportbutton.style.borderStyle = (this.options.borderStyle || 'groove');
+
+    this.exportbutton.onclick = this.exportCSV.bind(this);
+    this.div.appendChild(this.exportbutton);
 
     //Here we create a dropdown to control vision of the GANTT
     this.dropdown = document.createElement('select');
@@ -151,6 +165,22 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.handleColors.call(this);
       this.changeViewMode.call(this);
     }
+  }
+
+  async exportCSV() {
+    let tasks = this.gantt.tasks.map(task => `${task.id},${task.name},${task._start.toISOString().split('T')[0]},${task._end.toISOString().split('T')[0]},${task.progress},${Object.keys(phasing_config.mapTaksNProps).find(key => phasing_config.mapTaksNProps[key] === task.id)},${task.dependencies.join('-')}`);
+
+    let header = Object.values(phasing_config.requiredProps);
+    header.splice(5, 0, phasing_config.propFilter);
+    tasks.splice(0, 0, header.join(','));
+
+    let csvString = tasks.join("%0A");
+    let a = document.createElement('a');
+    a.href = 'data:attachment/csv,' + csvString;
+    a.target = '_blank';
+    a.download = this.currentDataType + (new Date()).getTime() + '.csv';
+    document.body.appendChild(a);
+    a.click();
   }
 
   async importCSV() {
