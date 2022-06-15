@@ -11,14 +11,21 @@
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 [![Level](https://img.shields.io/badge/Level-Basic-green.svg)](http://developer.autodesk.com/)
 
+
+## Thumbnail
+
+![thumbnail](https://raw.githubusercontent.com/JoaoMartins-Forge/construction-phasing-tutorial-docs/main/assets/images/complete.gif)
+
 ## Description
 
-This sample leverages the new [Dashboard](https://forge-tutorials.autodesk.io/tutorials/dashboard/) and the Node version of [Simple Viewer](https://forge-tutorials.autodesk.io/tutorials/simple-viewer/) tutorials to create a construction phasing sample.
+This sample leverages the new [Dashboard](https://forge-tutorials.autodesk.io/tutorials/dashboard/) and the Node version of [Simple Viewer](https://forge-tutorials.autodesk.io/tutorials/simple-viewer/) tutorials (with a few modifications) to create a construction phasing sample.
 Feel free to also use .NET version and [Hubs Browser](https://forge-tutorials.autodesk.io/tutorials/hubs-browser/).
 
-It's based in a configuration defined by a csv in order to map all the available elements in viewer, then categorize them into different packages.
+Especifically in this repo, we're using the minimal configuration to store only what's really important (the content under wwwroot/extensions folder).
+
+The sample is based in a configuration defined by a csv in order to map all the available elements in viewer, then categorize them into different tasks.
 It uses frappe/gantt as dependency.
-We also need to handle inputs and messages with client, so we're going with sweetalert2 for that.
+We also need to handle inputs and messages with client, so we're going with [sweetalert2](https://sweetalert2.github.io) for that.
 
 Here you can check the documentation of the library selected: https://frappe.io/gantt
 
@@ -33,17 +40,14 @@ The input `csv` file defines the tasks that will appear on the GANTT chart.
 ### We can divide this sample in 2 main features:
 
 1. Generate the GANTT chart based on `csv` input, with elements correlated to tasks
-2. Generate a graphic representation of the progress on the model based on the GANTT chart.
+2. Generate a graphic representation of the progress on the model based on the GANTT chart (overriding elements colors).
 
-## Thumbnail
-
-![thumbnail](/thumbnail.png)
 
 ## Live version
 
 You can run this sample live here:
 
-https://forge-construction-phasing-tutorial.herokuapp.com
+https://joaomartins-forge.github.io/construction-phasing-tutorial/wwwroot/index.html
 
 and the recording demonstrating how to run here:
 
@@ -56,49 +60,11 @@ https://www.youtube.com/watch?v=
 1. **Forge Account**: Learn how to create a Forge Account, activate subscription and create an app at [this tutorial](http://learnforge.autodesk.io/#/account/).
 2. **Base App**: A basic app from our new tutorial. This can be either [Simple Viewer](https://forge-tutorials.autodesk.io/tutorials/simple-viewer/) or [Hubs Browser](https://forge-tutorials.autodesk.io/tutorials/hubs-browser/). Select any of them (in NODE or .NET) as a base to integrate with client side. This extension is based on [Basic Extension](https://forge-tutorials.autodesk.io/tutorials/dashboard/basic), also available on our new tutorial.
 
-For using this sample, you need an Autodesk developer credentials. Visit the [Forge Developer Portal](https://developer.autodesk.com), sign up for an account, then [create an app](https://developer.autodesk.com/myapps/create). For this new app, use **http://localhost:3000/api/forge/callback/oauth** as Callback URL. Finally take note of the **Client ID** and **Client Secret**.
+To use this sample, you need an Autodesk developer credentials. Visit the [Forge Developer Portal](https://developer.autodesk.com), sign up for an account, then [create an app](https://developer.autodesk.com/myapps/create). For this new app, use **http://localhost:3000/api/forge/callback/oauth** as Callback URL. Finally take note of the **Client ID** and **Client Secret**.
 
-## Running locally
+Please, refer to the tutorial below for more details.
 
-Install [NodeJS](https://nodejs.org), version 16.15 or newer.
-
-Clone this project or download it (this `nodejs` branch only). It's recommended to install [GitHub desktop](https://desktop.github.com/). To clone it via command line, use the following (**Terminal** on MacOSX/Linux, **Git Shell** on Windows):
-
-    git clone (TBD)
-
-Install the required packages using `npm install`.
-
-### Setup & Run
-
-- Clone this repository
-- Install dependencies: `yarn install` or `npm install`
-- Setup environment variables:
-  - `FORGE_CLIENT_ID` - your Forge application client ID
-  - `FORGE_CLIENT_SECRET` - your Forge application client secret
-  - `FORGE_BUCKET` (optional) - name of Forge bucket to store your designs in
-- Run the server: `npm start`
-
-> When using [Visual Studio Code](https://code.visualstudio.com),
-you can specify the env. variables listed above in a _.env_ file in this
-folder, and run & debug the application directly from the editor.
-
-## Using the app
-
-Open the browser: [http://localhost:8080](http://localhost:3000).
-
-1. Once you have a model loaded, the app will require a `csv` to build the tasks.
-
-## Deployment
-
-To deploy this application to Heroku, the **Callback URL** for Forge must use your `.herokuapp.com` address. After clicking on the button below, at the Heroku Create New App page, set your Client ID, Secret and Callback URL for Forge.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Autodesk-Forge/forge-takeoff.exchange.csv)
-
-## Known issues
-
-
-## Tips & Tricks
-
+https://joaomartins-forge.github.io/construction-phasing-tutorial-docs/
 
 ## License
 
