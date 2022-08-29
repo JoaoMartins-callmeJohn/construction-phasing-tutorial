@@ -124,10 +124,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     this.updateTasks();
   }
 
-  selectDayOption() {
-    // this.dropdown.options.item(this.currentViewMode).selected = true;
-  }
-
   toggleOrientation(isVertical) {
     const { left: startX, top: startY, right: endX, bottom: endY } = this.extension.viewer.impl.getCanvasBoundingClientRect();
 
@@ -146,7 +142,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       this.container.style.left = (this.options.x || 0) + 'px';
       this.container.style.top = (this.options.y || 0) + 'px';
     }
-
   }
 
   update(model, dbids) {
@@ -197,7 +192,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
       on_progress_change: this.handleColors.bind(this),
       on_date_change: this.handleColors.bind(this)
     });
-
     return newGantt;
   }
 
@@ -354,7 +348,6 @@ export class PhasingPanel extends Autodesk.Viewing.UI.DockingPanel {
     let parameters = line.split(',');
     let inputHeaders = inputHeadersLine.split(',');
     let newObject = {};
-    // Object.keys(newObject) = PHASING_CONFIG.requiredProps;
     Object.values(phasing_config.requiredProps).forEach(requiredProp => {
       newObject.id = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.id)];
       newObject.name = parameters[inputHeaders.findIndex(h => h === phasing_config.requiredProps.taskName)];
